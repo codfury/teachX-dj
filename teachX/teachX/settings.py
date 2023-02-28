@@ -11,23 +11,35 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import environ
+import os
+
+env = environ.Env()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+environ.Env.read_env(env_file=os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-t$2r@@9-tzt+n1k1xk@s*qel8p)x@n5^poqr64_@zqaf$thw!#'
+SECRET_KEY = env(
+    'SECRET_KEY', default='qkl+xdr8aimpf-&x(mi7)dwt^-q77aji#j*d#02-5usa32r9!ySHivam@@9-tzt+n1k1xk@s*qel8p)x@n5^poqr64_@zqaf$thw!#')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(env("DEBUG", default=1))
 
-ALLOWED_HOSTS = ['*']
-# CSRF_TRUSTED_ORIGINS = ['https://f34b-106-51-128-62.in.ngrok.io','http://localhost:19006']
-CORS_ORIGIN_ALLOW_ALL =True
+ALLOWED_HOSTS = ["*"]
+
+# CORS_ALLOWED_ORIGINS = env("CORS
+# _ALLOWED_ORIGINS").split(" ")
+# CSRF_TRUSTED_ORIGINS = ['https://209c-113-193-237-18.in.ngrok.io','https://65e2-113-193-237-18.in.ngrok.io','https://ab7b-106-51-128-62.in.ngrok.io','https://a9e2-106-51-128-62.in.ngrok.io']
+# CORS_ORIGIN_ALLOW =['https://209c-113-193-237-18.in.ngrok.io']
+
+CORS_ALLOWED_ORIGINS = (env("CORS_ALLOWED_ORIGINS",default='https://8959-106-51-128-62.in.ngrok.io').split(" ") )
 
 
 # Application definition
@@ -82,8 +94,12 @@ WSGI_APPLICATION = 'teachX.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env('DB_NAME', default='teachx_db'),
+        'USER': env('DB_USER', default='admin'),
+        'PASSWORD': env('DB_PASSWORD', default='12345678'),
+        'HOST': env('DB_HOST', default='localhost'),
+        'PORT': env('DB_PORT', default='5432'),
     }
 }
 
