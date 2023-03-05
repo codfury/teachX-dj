@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import environ
+
+env = environ.Env()
+
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,14 +25,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-t$2r@@9-tzt+n1k1xk@s*qel8p)x@n5^poqr64_@zqaf$thw!#'
+SECRET_KEY = env('SECRET_KEY', default='qkl+xdr8aimpf-&x(mi7)dwt^-q77aji#j*d#02-5usa32r9!ySHivam@@9-tzt+n1k1xk@s*qel8p)x@n5^poqr64_@zqaf$thw!#')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(env("DEBUG", default=1))
 
 ALLOWED_HOSTS = ['*']
-# CSRF_TRUSTED_ORIGINS = ['https://f34b-106-51-128-62.in.ngrok.io','http://localhost:19006']
-CORS_ORIGIN_ALLOW_ALL =True
+#CORS_ALLOWED_ORIGINS = env("CORS
+# _ALLOWED_ORIGINS").split(" ")
+CSRF_TRUSTED_ORIGINS = ['https://8959-106-51-128-62.in.ngrok.io','https://65e2-113-193-237-18.in.ngrok.io','https://ab7b-106-51-128-62.in.ngrok.io','https://a9e2-106-51-128-62.in.ngrok.io']
+CORS_ORIGIN_ALLOW =['https://8959-106-51-128-62.in.ngrok.io']
 
 
 # Application definition
@@ -35,7 +43,7 @@ CORS_ORIGIN_ALLOW_ALL =True
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
-    'django.contrib.contenttypes',
+    'django.contrib.contenttypes',  
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',

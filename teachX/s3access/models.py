@@ -6,7 +6,7 @@ class devices(models.Model):
     device_id = models.TextField(blank=False,unique=True)
     name = models.TextField()
     address = models.TextField()
-    is_enable = models.BooleanField(default=False)
+    is_enable = models.BooleanField(default=True)
     updated_at =models.DateTimeField(default=datetime.utcnow)
 
     def __str__(self):
@@ -18,6 +18,7 @@ class devices(models.Model):
 class classes(models.Model):
     Class = models.IntegerField(blank=False,unique=True)
     image_url=models.URLField(null=True)
+    path = models.TextField(null=True)
 
     def __str__(self):
         return str(self.Class)

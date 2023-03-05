@@ -18,20 +18,25 @@ from django.shortcuts import get_object_or_404
 from rest_framework import mixins
 from rest_framework import generics
 # from rest_framework_api_key.permissions import HasAPIKey
+import boto3
+from botocore.exceptions import ClientError
+from botocore.config import Config
+import requests
 
-# def generate_presigned_url(bucket_name, object_key, expiry=3600):
+def generate_presigned_url(bucket_name='teachx-bucket', object_key="Acid Base and Salt (Published)/index.html", expiry=3600):
+    
 
-#     client = boto3.client("s3",region_name=REGION_NAME,
-#                           aws_access_key_id=ACCESS_KEY,
-#                           aws_secret_access_key="SECRET_KEY",
-#                           aws_session_token="SESSION_TOKEN")
-#     try:
-#         response = client.generate_presigned_url('get_object',
-#                                                   Params={'Bucket': bucket_name,'Key': object_key},
-#                                                   ExpiresIn=expiry)
-#         return {"course_url":response}
-#     except ClientError as e:
-#         return {"Error":1}
+    client = boto3.client("s3",region_name='ap-south-1',
+                          aws_access_key_id='AKIA3AOM6DCCQSHKING7',
+                          aws_secret_access_key="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")
+    try:
+        response = client.generate_presigned_url('get_object',
+                                                  Params={'Bucket': bucket_name,'Key': object_key},
+                                                  HttpMethod="GET",ExpiresIn=expiry)
+        print(response)
+        return Response({"course_url":response})
+    except ClientError as e:
+        return {"Error":1}
 
 
 # class ListClassesAPIView(generics.ListAPIView):
@@ -93,12 +98,19 @@ def get_subjects(request):
 
 @decorators.api_view(["GET","POST"])
 def get_chapters(request):
-    class_data,subject = request.data.get('class'),request.data.get('subject')
-    class_data,subject = get_object_or_404(classes,Class=class_data), get_object_or_404(subjects,subject=subject)
-    chapters_avl = chapters.objects.filter(Class = class_data,subject = subject)
+    class_data = request.data.get('class')
+    class_data = get_object_or_404(classes,Class=class_data)
+    chapters_avl = chapters.objects.filter(Class = class_data)
     serializer = chaptersSerializer(chapters_avl, many=True)
+    resp={}
+    for data in serializer.data:
+        if(data['subject'] in resp):
+            resp[data['subject']].append(data)
+        else:
+            resp[data['subject']]=[data]
+
     
-    return Response(serializer.data)
+    return Response(resp)
 
 # class AddChapter(generics.CreateAPIView):
 #     queryset = chapters.objects.all()
@@ -149,9 +161,28 @@ class ChapterDetailEdit(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = chaptersSerializer
 
 
-# @decorators.api_view(["GET"])
-# def get_s3access(request):
-#     pass
+@decorators.api_view(['GET','POST'])    
+def get_s3access(request):
+    print(generate_presigned_url())
+    
+    resp={"course_url":"https://s3.ap-south-1.amazonaws.com/neweducationplatform.com/synthetic+fibres+and+plastic/index.html"}
+    return Response(resp)
+
+    #return generate_presigned_url()
+
+    # resp={"url":"https://s3.ap-south-1.amazonaws.com/neweducationplatform.com/synthetic+fibres+and+plastic/index.html"}
+    # return Response(resp)
+
+    device_id,s3object_val = request.data.get('device_id') , request.data.get('s3object_value')
+    print(device_id,s3object_val,"lolo")
+    device = get_object_or_404(devices,device_id=device_id)
+    #resp={"url":"acid_bases_salt_tx/Acid Base and Salt (Published)/index.html"}
+    print(device_id,s3object_val)
+    if(device.is_enable and s3object_val):
+        return generate_presigned_url(object_key=s3object_val)
+    print("404")
+    return Response({"error":404})
+    
 
 
 
