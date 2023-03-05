@@ -30,7 +30,7 @@ fi
 
 # If that's not the case, we pull the latest changes and we build a new image
 
-git pull origin main;
+git pull origin prod;
 
 # Docker
 
