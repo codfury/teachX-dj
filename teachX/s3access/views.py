@@ -22,10 +22,36 @@ import boto3
 from botocore.exceptions import ClientError
 from botocore.config import Config
 import requests
+from django.contrib.auth import authenticate
+from django.http import JsonResponse
+from django.contrib.auth.models import User
 
-def generate_presigned_url(bucket_name='teachx-bucket', object_key="Acid Base and Salt (Published)/index.html", expiry=3600):
+@decorators.api_view(["GET","POST"])
+def login(request):
+
+    username,password,device_id = request.data.get('username'),request.data.get('password'),request.data.get('device_id')
+    device = get_object_or_404(devices,device_id=device_id,username=username)
+    if(username and password and device):
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+@decorators.api_view(["GET","POST"])
+def forgot_password(request):
+
+    username,password,confirm_password,device_id = request.data.get('username'),request.data.get('password'),request.data.get('confirm_password'),request.data.get('device_id')
+    user = get_object_or_404(User, username=username)
+    device = get_object_or_404(devices,device_id=device_id,username=username)
+    if(device and user and password==confirm_password):
+        user.set_password(password)
+        user.save()
+        return JsonResponse({'success': True})
     
+    return JsonResponse({'success': False})
 
+def generate_presigned_url(object_key,bucket_name='teachx-bucket',expiry=3600):
+    
     client = boto3.client("s3",region_name='ap-south-1',
                           aws_access_key_id='AKIA3AOM6DCCQSHKING7',
                           aws_secret_access_key="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")
@@ -38,34 +64,6 @@ def generate_presigned_url(bucket_name='teachx-bucket', object_key="Acid Base an
     except ClientError as e:
         return {"Error":1}
 
-
-# class ListClassesAPIView(generics.ListAPIView):
-#     queryset = classes.objects.all()
-#     serializer_class = classesSeralizer
-
-#     def get_queryset(self):
-#         return self.queryset
-    
-# class ListSubjectsAPIView(generics.ListAPIView):
-#     queryset = subjects.objects.all()
-#     serializer_class = subjectsSeralizer
-
-#     def get_queryset(self):
-#         return self.queryset.filter(class=class)
-    
-# class ListChaptersAPIView(generics.ListAPIView):
-#     queryset = chapters.objects.all()
-#     serializer_class = chaptersSeralizer
-
-#     def get_queryset(self):
-#         return self.queryset.filter(class=class,subject=subject)
-    
-# class ListCAPIView(generics.ListAPIView):
-#     queryset = classes.objects.all()
-#     serializer_class = classesSeralizer
-
-#     def get_queryset(self):
-#         return self.queryset
 
 
 @decorators.api_view(["GET","POST"])
@@ -112,9 +110,6 @@ def get_chapters(request):
     
     return Response(resp)
 
-# class AddChapter(generics.CreateAPIView):
-#     queryset = chapters.objects.all()
-#     serializer_class = chaptersSerializer
 
 @api_view(['GET', 'POST'])
 def AddChapter(request ):
@@ -163,18 +158,8 @@ class ChapterDetailEdit(generics.RetrieveUpdateDestroyAPIView):
 
 @decorators.api_view(['GET','POST'])    
 def get_s3access(request):
-    print(generate_presigned_url())
-    
-    resp={"course_url":"https://s3.ap-south-1.amazonaws.com/neweducationplatform.com/synthetic+fibres+and+plastic/index.html"}
-    return Response(resp)
-
-    #return generate_presigned_url()
-
-    # resp={"url":"https://s3.ap-south-1.amazonaws.com/neweducationplatform.com/synthetic+fibres+and+plastic/index.html"}
-    # return Response(resp)
 
     device_id,s3object_val = request.data.get('device_id') , request.data.get('s3object_value')
-    print(device_id,s3object_val,"lolo")
     device = get_object_or_404(devices,device_id=device_id)
     #resp={"url":"acid_bases_salt_tx/Acid Base and Salt (Published)/index.html"}
     print(device_id,s3object_val)

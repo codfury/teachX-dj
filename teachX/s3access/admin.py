@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import classes,subjects,chapters,devices
+
 admin.site.site_header = "TeachX Admin"
 admin.site.index_title = "Welcome to TeachX Admin page"
 admin.site.site_title = "TeachX Admin"

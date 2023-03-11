@@ -9,8 +9,7 @@ urlpatterns = [
     path('edit_chapter/<int:pk>/', ChapterDetailEdit.as_view(), name='get_chapter'),
     path('add_chapter/', AddChapter, name='add_chapter'),
     path('get_s3access/',get_s3access, name='get_s3access'),
-    # path('add_device/', verify_otp, name='add'),
-    # path('edit_device/', verify_otp, name='verify_otp'),
-    # path('edit_course/', verify_otp, name='verify_otp'),
+    path('login/',login, name='login'),
+    path('forgot_password/',forgot_password, name='forgot_password'),
     
 ]
